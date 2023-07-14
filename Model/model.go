@@ -5,11 +5,11 @@ import (
 )
 
 type Quote struct {
-	ID                      primitive.ObjectID `json:"_id,omitempty"`
-	UserId                  primitive.ObjectID `json:"userid,omitempty"`
-	GallonsRequested        int32              `json:"gallonsrequested,omitempty"`
-	DeliveryAddress         string             `json:"deliveryaddress,omitempty"`
-	DeliveryDate            primitive.DateTime `json:"deliverydate,omitempty"`
-	SuggestedPricePerGallon float64            `json:"suggestedpricepergallon,omitempty"`
-	TotalAmountDue          float64            `json:"totalamountdue,omitempty"`
+	ID                      primitive.ObjectID `json:"_id"`
+	UserId                  primitive.ObjectID `json:"userid"`
+	GallonsRequested        int32              `json:"gallonsrequested"`
+	DeliveryAddress         string             `json:"deliveryaddress"`
+	DeliveryDate            primitive.DateTime `json:"deliverydate"`
+	SuggestedPricePerGallon float64            `json:"suggestedpricepergallon"`
+	TotalAmountDue          float64            `json:"totalamountdue"`
 }
