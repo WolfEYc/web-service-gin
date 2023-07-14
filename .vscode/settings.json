@@ -1,0 +1,6 @@
+{
+    "go.lintOnSave": "workspace",
+    "go.lintTool": "golangci-lint",
+    "editor.formatOnSave": true,
+    "go.formatTool": "gofmt"
+}

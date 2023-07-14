@@ -29,13 +29,24 @@ func port() string {
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
+func GetScheme() []string {
+	scheme, hasScheme := os.LookupEnv("SCHEME")
+
+	if hasScheme {
+		return []string{scheme}
+	} else {
+		return []string{"https"}
+	}
+}
+
 func InitSwag() {
 	docs.SwaggerInfo.Title = "Fuelquote API"
 	docs.SwaggerInfo.Description = "This is a fuelquote project API"
 	docs.SwaggerInfo.Version = "1.0"
+
 	//docs.SwaggerInfo.Host = "petstore.swagger.io"
 	docs.SwaggerInfo.BasePath = "/api/v1"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Schemes = GetScheme()
 }
 
 func main() {
