@@ -12,12 +12,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const MONGODB_URI = "MONGODB_URI"
+
 func GetURI() string {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading environment variables file")
+	uri, exists := os.LookupEnv(MONGODB_URI)
+	if !exists {
+		godotenv.Load(".env")
+		return os.Getenv(MONGODB_URI)
+	} else {
+		return uri
 	}
-	return os.Getenv("MONGODB_URI")
 }
 
 func ConnectDB() *mongo.Client {

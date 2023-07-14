@@ -21,7 +21,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/main .
 ############################
 # STEP 2 build a small image
 ############################
-FROM alpine:3
+FROM alpine:latest
 
 WORKDIR /
 
