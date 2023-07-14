@@ -3,8 +3,13 @@ package main
 import (
 	"os"
 	routes "web-service-gin/Routes"
+	"web-service-gin/docs"
+
+	_ "web-service-gin/docs"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginswagger "github.com/swaggo/gin-swagger"
 )
 
 func port() string {
@@ -17,14 +22,38 @@ func port() string {
 	return ":" + port
 }
 
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+func InitSwag() {
+	docs.SwaggerInfo.Title = "Fuelquote API"
+	docs.SwaggerInfo.Description = "This is a fuelquote project API"
+	docs.SwaggerInfo.Version = "1.0"
+	//docs.SwaggerInfo.Host = "petstore.swagger.io"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+}
+
 func main() {
 
 	//database.ConnectDB()
+	InitSwag()
 	router := gin.Default()
 	router.RedirectTrailingSlash = false
 
-	// called as /quotes/{id}
-	router.GET("quotes/:quoteId", routes.ReadOnePost)
+	v1 := router.Group(docs.SwaggerInfo.BasePath)
+	{
+		quotes := v1.Group("/quotes")
+		{
+			quotes.GET(":id", routes.GetQuote)
+		}
+	}
 
-	router.Run(port())
+	router.GET("swagger/*any", ginswagger.WrapHandler(swaggerFiles.Handler))
+
+	_ = router.Run(port())
 }

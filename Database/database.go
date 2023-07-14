@@ -17,7 +17,12 @@ const MONGODB_URI = "MONGODB_URI"
 func GetURI() string {
 	uri, exists := os.LookupEnv(MONGODB_URI)
 	if !exists {
-		godotenv.Load(".env")
+		err := godotenv.Load(".env")
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		return os.Getenv(MONGODB_URI)
 	} else {
 		return uri
@@ -25,16 +30,14 @@ func GetURI() string {
 }
 
 func ConnectDB() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI(GetURI()))
-	if err != nil {
-		log.Fatal(err)
-	}
 
+	opts := options.Client().ApplyURI(GetURI())
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	defer cancel()
 
-	err = client.Connect(ctx)
+	client, err := mongo.Connect(ctx, opts)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,6 +47,7 @@ func ConnectDB() *mongo.Client {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Println("Connected to MongoDB")
 	return client
 }

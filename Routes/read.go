@@ -6,18 +6,32 @@ import (
 	"time"
 	database "web-service-gin/Database"
 	model "web-service-gin/Model"
+	"web-service-gin/httputil"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func ReadOnePost(apictx *gin.Context) {
+// GetQuote godoc
+//
+//	@Summary		Get Quote
+//	@Description	gets a quote from its id
+//	@Tags			quotes
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Quote ID"
+//	@Success		200	{object}	model.Quote
+//	@Failure		400	{object}	httputil.HTTPError	"Invalid ID format"
+//	@Failure		404	{object}	httputil.HTTPError	"Quote not found"
+//	@Failure		500	{object}	httputil.HTTPError	"Unknown internal server error"
+//	@Router			/quotes/{id} [get]
+func GetQuote(apictx *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	var postCollection = database.GetCollection("quotes")
 
-	postId := apictx.Param("quoteId")
+	postId := apictx.Param("id")
 	var result model.Quote
 
 	defer cancel()
@@ -25,14 +39,14 @@ func ReadOnePost(apictx *gin.Context) {
 	objId, iderr := primitive.ObjectIDFromHex(postId)
 
 	if iderr != nil {
-		apictx.JSON(http.StatusBadRequest, "Invalid Object ID")
+		httputil.NewError(apictx, http.StatusBadRequest, iderr)
+		return
 	}
 
-	err := postCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&result)
+	finderr := postCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&result)
 
-	if err != nil {
-		println(err.Error())
-		apictx.JSON(http.StatusInternalServerError, gin.H{"message": err})
+	if finderr != nil {
+		httputil.NewError(apictx, http.StatusNotFound, finderr)
 		return
 	}
 

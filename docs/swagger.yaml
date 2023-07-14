@@ -1,0 +1,77 @@
+definitions:
+  httputil.HTTPError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+  model.Quote:
+    properties:
+      _id:
+        example: 63f79148c3a63a346225fd99
+        type: string
+      deliveryaddress:
+        example: best st
+        type: string
+      deliverydate:
+        example: "2023-02-24T00:00:00Z"
+        type: string
+      gallonsrequested:
+        example: 99999
+        type: integer
+      suggestedpricepergallon:
+        example: 1.74
+        type: number
+      totalamountdue:
+        example: 173998.26
+        type: number
+      userid:
+        example: 63f78fc8c3a63a346225fd96
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /quotes/{id}:
+    get:
+      consumes:
+      - application/json
+      description: gets a quote from its id
+      parameters:
+      - description: Quote ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Quote'
+        "400":
+          description: Invalid ID format
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: Quote not found
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "500":
+          description: Unknown internal server error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get Quote
+      tags:
+      - quotes
+swagger: "2.0"
