@@ -36,7 +36,6 @@ func ReadOnePost(apictx *gin.Context) {
 		return
 	}
 
-	res := map[string]interface{}{"data": result}
-
-	apictx.JSON(http.StatusOK, res)
+	result.ID = objId
+	apictx.JSON(http.StatusOK, result)
 }
