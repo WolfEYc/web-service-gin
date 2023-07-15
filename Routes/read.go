@@ -27,7 +27,9 @@ import (
 //	@Failure		500	{object}	httputil.HTTPError	"Unknown internal server error"
 //	@Router			/quotes/{id} [get]
 func GetQuote(apictx *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second)
 
 	var postCollection = database.GetCollection("quotes")
 
@@ -43,7 +45,8 @@ func GetQuote(apictx *gin.Context) {
 		return
 	}
 
-	finderr := postCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&result)
+	finderr := postCollection.FindOne(ctx, bson.M{"_id": objId}).
+		Decode(&result)
 
 	if finderr != nil {
 		httputil.NewError(apictx, http.StatusNotFound, finderr)
