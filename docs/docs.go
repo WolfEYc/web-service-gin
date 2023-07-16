@@ -56,19 +56,86 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid ID format",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "Quote not found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Unknown internal server error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/token": {
+            "get": {
+                "description": "Returns your authorization cookie, if it exists",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "token"
+                ],
+                "summary": "Get Token",
+                "responses": {
+                    "200": {
+                        "description": "Cookie Exists",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No Cookie",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unknown internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/token/validate": {
+            "get": {
+                "description": "Validates your auth token from your browser cookie",
+                "tags": [
+                    "token"
+                ],
+                "summary": "Validate Token",
+                "responses": {
+                    "200": {
+                        "description": "Authorized",
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No Cookie",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unknown internal server error",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -108,13 +175,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad User Entry",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Unknown internal server error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     }
                 }
@@ -151,25 +218,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request Formation",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "Wrong Password",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "User Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Unknown internal server error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     }
                 }
@@ -177,37 +244,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "httputil.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
-                }
-            }
-        },
         "models.Quote": {
             "type": "object",
             "properties": {
-                "_id": {
+                "deliveryDate": {
                     "type": "string",
-                    "example": "63f79148c3a63a346225fd99"
+                    "example": "2023-02-24T00:00:00Z"
                 },
                 "deliveryaddress": {
                     "type": "string",
                     "example": "best st"
                 },
-                "deliverydate": {
-                    "type": "string",
-                    "example": "2023-02-24T00:00:00Z"
-                },
                 "gallonsrequested": {
                     "type": "integer",
                     "example": 99999
+                },
+                "id": {
+                    "type": "string",
+                    "example": "63f79148c3a63a346225fd99"
                 },
                 "suggestedpricepergallon": {
                     "type": "number",
@@ -217,7 +271,7 @@ const docTemplate = `{
                     "type": "number",
                     "example": 173998.26
                 },
-                "userid": {
+                "userId": {
                     "type": "string",
                     "example": "63f78fc8c3a63a346225fd96"
                 }

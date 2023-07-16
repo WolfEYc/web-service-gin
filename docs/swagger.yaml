@@ -1,34 +1,25 @@
 definitions:
-  httputil.HTTPError:
-    properties:
-      code:
-        example: 400
-        type: integer
-      message:
-        example: status bad request
-        type: string
-    type: object
   models.Quote:
     properties:
-      _id:
-        example: 63f79148c3a63a346225fd99
+      deliveryDate:
+        example: "2023-02-24T00:00:00Z"
         type: string
       deliveryaddress:
         example: best st
         type: string
-      deliverydate:
-        example: "2023-02-24T00:00:00Z"
-        type: string
       gallonsrequested:
         example: 99999
         type: integer
+      id:
+        example: 63f79148c3a63a346225fd99
+        type: string
       suggestedpricepergallon:
         example: 1.74
         type: number
       totalamountdue:
         example: 173998.26
         type: number
-      userid:
+      userId:
         example: 63f78fc8c3a63a346225fd96
         type: string
     type: object
@@ -98,18 +89,62 @@ paths:
         "400":
           description: Invalid ID format
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
         "404":
           description: Quote not found
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
         "500":
           description: Unknown internal server error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
       summary: Get Quote
       tags:
       - quotes
+  /token:
+    get:
+      description: Returns your authorization cookie, if it exists
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Cookie Exists
+          schema:
+            type: string
+        "404":
+          description: No Cookie
+          schema:
+            type: string
+        "500":
+          description: Unknown internal server error
+          schema:
+            type: string
+      summary: Get Token
+      tags:
+      - token
+  /token/validate:
+    get:
+      description: Validates your auth token from your browser cookie
+      responses:
+        "200":
+          description: Authorized
+          schema:
+            type: ""
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: No Cookie
+          schema:
+            type: string
+        "500":
+          description: Unknown internal server error
+          schema:
+            type: string
+      summary: Validate Token
+      tags:
+      - token
   /users:
     post:
       consumes:
@@ -132,11 +167,11 @@ paths:
         "400":
           description: Bad User Entry
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
         "500":
           description: Unknown internal server error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
       summary: Create User
       tags:
       - users
@@ -160,19 +195,19 @@ paths:
         "400":
           description: Bad Request Formation
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
         "401":
           description: Wrong Password
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
         "404":
           description: User Not Found
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
         "500":
           description: Unknown internal server error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            type: string
       summary: Login User
       tags:
       - users

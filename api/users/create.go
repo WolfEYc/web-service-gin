@@ -4,8 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
-	"web-service-gin/database"
-	"web-service-gin/httputil"
+	"web-service-gin/db"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -29,10 +28,10 @@ type CreateUserBody struct {
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			createuserbody	body		CreateUserBody		true	"Create User Request Body"
-//	@Success		201				{string}	string				"Created User's ID"
-//	@Failure		400				{object}	httputil.HTTPError	"Bad User Entry"
-//	@Failure		500				{object}	httputil.HTTPError	"Unknown internal server error"
+//	@Param			createuserbody	body		CreateUserBody	true	"Create User Request Body"
+//	@Success		201				{string}	string			"Created User's ID"
+//	@Failure		400				{string}	string			"Bad User Entry"
+//	@Failure		500				{string}	string			"Unknown internal server error"
 //	@Router			/users [post]
 func CreateUser(c *gin.Context) {
 	var body CreateUserBody
@@ -40,13 +39,13 @@ func CreateUser(c *gin.Context) {
 	bodyReadErr := c.Bind(&body)
 
 	if bodyReadErr != nil {
-		httputil.NewError(c, http.StatusBadRequest, bodyReadErr)
+		_ = c.AbortWithError(http.StatusBadRequest, bodyReadErr)
 		return
 	}
 
 	if UserNameExists(body.UserName) {
-		httputil.NewError(
-			c,
+
+		_ = c.AbortWithError(
 			http.StatusBadRequest,
 			errors.New("Username Taken"))
 		return
@@ -57,15 +56,15 @@ func CreateUser(c *gin.Context) {
 		10)
 
 	if hasherr != nil {
-		httputil.NewError(c, http.StatusBadRequest, hasherr)
+		_ = c.AbortWithError(http.StatusBadRequest, hasherr)
 		return
 	}
 
 	body.Password = base64.URLEncoding.EncodeToString(hashword)
 
-	var userCollection = database.GetCollection("users")
+	var userCollection = db.GetCollection(db.Users)
 
-	ctx, cancel := database.DefaultContext()
+	ctx, cancel := db.DefaultContext()
 
 	defer cancel()
 
@@ -74,7 +73,7 @@ func CreateUser(c *gin.Context) {
 		body)
 
 	if insertErr != nil {
-		httputil.NewError(c, http.StatusBadRequest, insertErr)
+		_ = c.AbortWithError(http.StatusBadRequest, insertErr)
 		return
 	}
 

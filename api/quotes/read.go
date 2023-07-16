@@ -2,8 +2,7 @@ package quotes
 
 import (
 	"net/http"
-	database "web-service-gin/database"
-	"web-service-gin/httputil"
+	db "web-service-gin/db"
 	models "web-service-gin/models"
 
 	"github.com/gin-gonic/gin"
@@ -18,26 +17,26 @@ import (
 //	@Tags			quotes
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string				true	"Quote ID"
-//	@Success		200	{object}	models.Quote		"Queried Quote"
-//	@Failure		400	{object}	httputil.HTTPError	"Invalid ID format"
-//	@Failure		404	{object}	httputil.HTTPError	"Quote not found"
-//	@Failure		500	{object}	httputil.HTTPError	"Unknown internal server error"
+//	@Param			id	path		string			true	"Quote ID"
+//	@Success		200	{object}	models.Quote	"Queried Quote"
+//	@Failure		400	{object}	string			"Invalid ID format"
+//	@Failure		404	{object}	string			"Quote not found"
+//	@Failure		500	{object}	string			"Unknown internal server error"
 //	@Router			/quotes/{id} [get]
-func GetQuote(apictx *gin.Context) {
-	var postCollection = database.GetCollection("quotes")
+func GetQuote(c *gin.Context) {
+	var postCollection = db.GetCollection(db.Quotes)
 
-	postId := apictx.Param("id")
+	postId := c.Param("id")
 	var result models.Quote
 
 	objId, iderr := primitive.ObjectIDFromHex(postId)
 
 	if iderr != nil {
-		httputil.NewError(apictx, http.StatusBadRequest, iderr)
+		_ = c.AbortWithError(http.StatusBadRequest, iderr)
 		return
 	}
 
-	ctx, cancel := database.DefaultContext()
+	ctx, cancel := db.DefaultContext()
 
 	defer cancel()
 
@@ -45,10 +44,10 @@ func GetQuote(apictx *gin.Context) {
 		Decode(&result)
 
 	if finderr != nil {
-		httputil.NewError(apictx, http.StatusNotFound, finderr)
+		_ = c.AbortWithError(http.StatusNotFound, finderr)
 		return
 	}
 
 	result.ID = objId
-	apictx.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
 }

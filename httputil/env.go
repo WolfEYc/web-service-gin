@@ -7,23 +7,29 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const SCHEME = "SCHEME"
+const SECURE = "SECURE"
 const MONGODB_URI = "MONGODB_URI"
 const ENV = ".env"
-const DEFAULT_SCHEME = "https"
+const INSECURE_SCEME = "http"
+const SECURE_SCHEME = "https"
 const JWT_SECRET = "JWT_PRIVATE_KEY"
 
-func GetURLProtocol() []string {
-	scheme, hasScheme := os.LookupEnv(SCHEME)
-
-	if hasScheme {
-		return []string{scheme}
+func GetSchemes() []string {
+	if IsSecure {
+		return []string{SECURE_SCHEME}
 	} else {
-		return []string{DEFAULT_SCHEME}
+		return []string{INSECURE_SCEME}
 	}
 }
 
-var IsSecure bool = GetURLProtocol()[0] == DEFAULT_SCHEME
+func GetIsSecure() bool {
+	_ = godotenv.Load(ENV)
+	securityStr, hasSecureStr := os.LookupEnv(SECURE)
+
+	return !hasSecureStr || securityStr != "false"
+}
+
+var IsSecure bool = GetIsSecure()
 
 func GetMongoURI() string {
 	uri, exists := os.LookupEnv(MONGODB_URI)

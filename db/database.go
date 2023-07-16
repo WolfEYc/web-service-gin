@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"context"
@@ -11,10 +11,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	Quotes  = "quotes"
+	Users   = "users"
+	DB_NAME = "fuelquote"
+)
+
 func ConnectDB() *mongo.Client {
 
 	opts := options.Client().ApplyURI(httputil.GetMongoURI())
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second)
 
 	defer cancel()
 
@@ -37,7 +45,7 @@ func ConnectDB() *mongo.Client {
 var client *mongo.Client = ConnectDB()
 
 func GetCollection(collectionName string) *mongo.Collection {
-	collection := client.Database("fuelquote").Collection(collectionName)
+	collection := client.Database(DB_NAME).Collection(collectionName)
 	return collection
 }
 

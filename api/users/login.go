@@ -27,12 +27,12 @@ const COOKIE_NAME = "Authorization"
 //	@Description	Gain an auth jwt cookie for a user by providing username and password
 //	@Tags			users
 //	@Accept			json
-//	@Param			loginuserbody	body		LoginUserBody		true	"Login User Request Body"
-//	@Success		200				{}			nil					"Obtained Auth"
-//	@Failure		400				{object}	httputil.HTTPError	"Bad Request Formation"
-//	@Failure		401				{object}	httputil.HTTPError	"Wrong Password"
-//	@Failure		404				{object}	httputil.HTTPError	"User Not Found"
-//	@Failure		500				{object}	httputil.HTTPError	"Unknown internal server error"
+//	@Param			loginuserbody	body		LoginUserBody	true	"Login User Request Body"
+//	@Success		200				{}			nil				"Obtained Auth"
+//	@Failure		400				{object}	string			"Bad Request Formation"
+//	@Failure		401				{object}	string			"Wrong Password"
+//	@Failure		404				{object}	string			"User Not Found"
+//	@Failure		500				{object}	string			"Unknown internal server error"
 //	@Router			/users/login [post]
 func LoginUser(c *gin.Context) {
 	var body LoginUserBody
@@ -40,7 +40,7 @@ func LoginUser(c *gin.Context) {
 	bodyReadErr := c.Bind(&body)
 
 	if bodyReadErr != nil {
-		httputil.NewError(c, http.StatusBadRequest, bodyReadErr)
+		_ = c.AbortWithError(http.StatusBadRequest, bodyReadErr)
 		return
 	}
 
@@ -49,22 +49,22 @@ func LoginUser(c *gin.Context) {
 	queryerr := query.Err()
 
 	if queryerr != nil {
-		httputil.NewError(c, http.StatusNotFound, queryerr)
+		_ = c.AbortWithError(http.StatusNotFound, queryerr)
 		return
 	}
 
-	var user models.User
+	var loginUser models.User
 
-	decodeErr := query.Decode(&user)
+	decodeErr := query.Decode(&loginUser)
 
 	if decodeErr != nil {
-		httputil.NewError(c, http.StatusInternalServerError, decodeErr)
+		_ = c.AbortWithError(http.StatusInternalServerError, decodeErr)
 	}
 
-	hashedPassword, b64DecodeErr := base64.URLEncoding.DecodeString(user.Password)
+	hashedPassword, b64DecodeErr := base64.URLEncoding.DecodeString(loginUser.Password)
 
 	if b64DecodeErr != nil {
-		httputil.NewError(c, http.StatusInternalServerError, b64DecodeErr)
+		_ = c.AbortWithError(http.StatusInternalServerError, b64DecodeErr)
 		return
 	}
 
@@ -73,23 +73,28 @@ func LoginUser(c *gin.Context) {
 		[]byte(body.Password))
 
 	if compareErr != nil {
-		httputil.NewError(c, http.StatusUnauthorized, compareErr)
+		_ = c.AbortWithError(http.StatusUnauthorized, compareErr)
 		return
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
+		"sub": loginUser.Id.Hex(),
 		"exp": time.Now().Add(TOKEN_LIFETIME).Unix(),
 	})
 
 	tokenStr, tokenSigningErr := token.SignedString(httputil.JWTPrivateKey)
 
 	if tokenSigningErr != nil {
-		httputil.NewError(c, http.StatusInternalServerError, tokenSigningErr)
+		_ = c.AbortWithError(http.StatusInternalServerError, tokenSigningErr)
 		return
 	}
 
-	c.SetSameSite(http.SameSiteDefaultMode)
+	if !httputil.IsSecure {
+		c.SetSameSite(http.SameSiteLaxMode)
+	} else {
+		c.SetSameSite(http.SameSiteDefaultMode)
+	}
+
 	c.SetCookie(
 		COOKIE_NAME,
 		tokenStr,
@@ -97,7 +102,7 @@ func LoginUser(c *gin.Context) {
 		"",
 		"",
 		httputil.IsSecure,
-		true)
+		httputil.IsSecure)
 
 	c.Status(http.StatusOK)
 }

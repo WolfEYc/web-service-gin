@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"web-service-gin/api/quotes"
+	"web-service-gin/api/token"
 	"web-service-gin/api/users"
 	"web-service-gin/docs"
 	"web-service-gin/httputil"
@@ -34,6 +35,9 @@ func port() string {
 //	@in							cookie
 //	@name						Authorization
 //	@description				Basic password login token auth, stored in a cookie for convenience
+//
+//	@authorizationurl			/token/validate
+//	@tokenUrl					/token
 func InitSwag() {
 	docs.SwaggerInfo.Title = "Fuelquote API"
 	docs.SwaggerInfo.Description = "This is a fuelquote project API"
@@ -41,7 +45,7 @@ func InitSwag() {
 
 	//docs.SwaggerInfo.Host = "petstore.swagger.io"
 	docs.SwaggerInfo.BasePath = "/api/v1"
-	docs.SwaggerInfo.Schemes = httputil.GetURLProtocol()
+	docs.SwaggerInfo.Schemes = httputil.GetSchemes()
 }
 
 func main() {
@@ -59,9 +63,14 @@ func main() {
 		}
 		usersRoute := v1.Group("/users")
 		{
-			usersRoute.GET(":id", users.ReadUser)
+			usersRoute.GET("/me", token.RequireAuth, users.GetUser)
 			usersRoute.POST("", users.CreateUser)
 			usersRoute.POST("/login", users.LoginUser)
+		}
+		tokenRoute := v1.Group("/token")
+		{
+			tokenRoute.GET("", token.GetToken)
+			tokenRoute.GET("/validate", token.RequireAuth, token.ValidateToken)
 		}
 	}
 
