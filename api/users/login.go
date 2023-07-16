@@ -77,10 +77,12 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": loginUser.Id.Hex(),
-		"exp": time.Now().Add(TOKEN_LIFETIME).Unix(),
-	})
+	token := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"sub": loginUser.Id.Hex(),
+			"exp": time.Now().Add(TOKEN_LIFETIME).Unix(),
+		})
 
 	tokenStr, tokenSigningErr := token.SignedString(httputil.JWTPrivateKey)
 

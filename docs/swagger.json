@@ -229,6 +229,38 @@
                     }
                 }
             }
+        },
+        "/users/me": {
+            "get": {
+                "description": "returns your user info from your auth cookie",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get User",
+                "responses": {
+                    "200": {
+                        "description": "Current User",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Not authorized as any user",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Unknown internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -262,6 +294,51 @@
                 "userId": {
                     "type": "string",
                     "example": "63f78fc8c3a63a346225fd96"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "address1": {
+                    "type": "string",
+                    "example": "coolsvile avvae"
+                },
+                "address2": {
+                    "type": "string",
+                    "example": "billion ave"
+                },
+                "city": {
+                    "type": "string",
+                    "example": "Houstonian"
+                },
+                "fullname": {
+                    "type": "string",
+                    "example": "zenyatta man"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "63f78fc8c3a63a346225fd96"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "bdeac530209b16657065661aa11fcdd85b21b01a"
+                },
+                "quotes": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "state": {
+                    "type": "string",
+                    "example": "AZ"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "zamzang"
+                },
+                "zipcode": {
+                    "type": "integer",
+                    "example": 827392
                 }
             }
         },

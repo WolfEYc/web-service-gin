@@ -23,6 +23,39 @@ definitions:
         example: 63f78fc8c3a63a346225fd96
         type: string
     type: object
+  models.User:
+    properties:
+      address1:
+        example: coolsvile avvae
+        type: string
+      address2:
+        example: billion ave
+        type: string
+      city:
+        example: Houstonian
+        type: string
+      fullname:
+        example: zenyatta man
+        type: string
+      id:
+        example: 63f78fc8c3a63a346225fd96
+        type: string
+      password:
+        example: bdeac530209b16657065661aa11fcdd85b21b01a
+        type: string
+      quotes:
+        example: 0
+        type: integer
+      state:
+        example: AZ
+        type: string
+      username:
+        example: zamzang
+        type: string
+      zipcode:
+        example: 827392
+        type: integer
+    type: object
   users.CreateUserBody:
     properties:
       address1:
@@ -209,6 +242,27 @@ paths:
           schema:
             type: string
       summary: Login User
+      tags:
+      - users
+  /users/me:
+    get:
+      description: returns your user info from your auth cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Current User
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Not authorized as any user
+          schema:
+            type: string
+        "500":
+          description: Unknown internal server error
+          schema:
+            type: string
+      summary: Get User
       tags:
       - users
 securityDefinitions:

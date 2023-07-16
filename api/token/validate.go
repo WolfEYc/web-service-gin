@@ -35,49 +35,56 @@ func RequireAuth(c *gin.Context) {
 		return
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			_ = c.AbortWithError(
-				http.StatusUnauthorized,
-				jwt.NewValidationError("token expired", jwt.ValidationErrorExpired))
-			return
-		}
-
-		println(claims["sub"])
-
-		userid, userHexErr := primitive.ObjectIDFromHex((claims["sub"].(string)))
-
-		if userHexErr != nil {
-			_ = c.AbortWithError(http.StatusUnauthorized, userHexErr)
-			return
-		}
-
-		query := users.GetUserByID(userid)
-
-		queryerr := query.Err()
-
-		if queryerr != nil {
-			_ = c.AbortWithError(http.StatusUnauthorized, queryerr)
-			return
-		}
-
-		var user models.User
-		queryReturnErr := query.Decode(&user)
-
-		if queryReturnErr != nil {
-			_ = c.AbortWithError(http.StatusInternalServerError, queryReturnErr)
-			return
-		}
-
-		c.Set(users.REQ_USER, user)
-
-		c.Next()
-	} else {
-
+	if !token.Valid {
 		_ = c.AbortWithError(
 			http.StatusUnauthorized,
-			jwt.NewValidationError("token invalid", jwt.ValidationErrorClaimsInvalid))
+			jwt.NewValidationError("token invalid", jwt.ValidationErrorSignatureInvalid))
+		return
 	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		_ = c.AbortWithError(
+			http.StatusUnauthorized,
+			jwt.NewValidationError("token claims invalid", jwt.ValidationErrorClaimsInvalid))
+		return
+	}
+
+	if float64(time.Now().Unix()) > claims["exp"].(float64) {
+		_ = c.AbortWithError(
+			http.StatusUnauthorized,
+			jwt.NewValidationError("token expired", jwt.ValidationErrorExpired))
+		return
+	}
+
+	userid, userHexErr := primitive.ObjectIDFromHex((claims["sub"].(string)))
+
+	if userHexErr != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, userHexErr)
+		return
+	}
+
+	query := users.GetUserByID(userid)
+
+	queryerr := query.Err()
+
+	if queryerr != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, queryerr)
+		return
+	}
+
+	var user models.User
+	queryReturnErr := query.Decode(&user)
+
+	if queryReturnErr != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, queryReturnErr)
+		return
+	}
+
+	c.Set(users.REQ_USER, user)
+
+	c.Next()
 }
 
 // ValidateToken godoc
