@@ -1,12 +1,10 @@
-package routes
+package quotes
 
 import (
-	"context"
 	"net/http"
-	"time"
-	database "web-service-gin/Database"
-	model "web-service-gin/Model"
+	database "web-service-gin/database"
 	"web-service-gin/httputil"
+	models "web-service-gin/models"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,23 +18,17 @@ import (
 //	@Tags			quotes
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"Quote ID"
-//	@Success		200	{object}	model.Quote
+//	@Param			id	path		string				true	"Quote ID"
+//	@Success		200	{object}	models.Quote		"Queried Quote"
 //	@Failure		400	{object}	httputil.HTTPError	"Invalid ID format"
 //	@Failure		404	{object}	httputil.HTTPError	"Quote not found"
 //	@Failure		500	{object}	httputil.HTTPError	"Unknown internal server error"
 //	@Router			/quotes/{id} [get]
 func GetQuote(apictx *gin.Context) {
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		10*time.Second)
-
 	var postCollection = database.GetCollection("quotes")
 
 	postId := apictx.Param("id")
-	var result model.Quote
-
-	defer cancel()
+	var result models.Quote
 
 	objId, iderr := primitive.ObjectIDFromHex(postId)
 
@@ -44,6 +36,10 @@ func GetQuote(apictx *gin.Context) {
 		httputil.NewError(apictx, http.StatusBadRequest, iderr)
 		return
 	}
+
+	ctx, cancel := database.DefaultContext()
+
+	defer cancel()
 
 	finderr := postCollection.FindOne(ctx, bson.M{"_id": objId}).
 		Decode(&result)

@@ -4,34 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
+	"web-service-gin/httputil"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const MONGODB_URI = "MONGODB_URI"
-
-func GetURI() string {
-	uri, exists := os.LookupEnv(MONGODB_URI)
-	if !exists {
-		err := godotenv.Load(".env")
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return os.Getenv(MONGODB_URI)
-	} else {
-		return uri
-	}
-}
-
 func ConnectDB() *mongo.Client {
 
-	opts := options.Client().ApplyURI(GetURI())
+	opts := options.Client().ApplyURI(httputil.GetMongoURI())
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	defer cancel()
@@ -57,4 +39,10 @@ var client *mongo.Client = ConnectDB()
 func GetCollection(collectionName string) *mongo.Collection {
 	collection := client.Database("fuelquote").Collection(collectionName)
 	return collection
+}
+
+func DefaultContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(
+		context.Background(),
+		10*time.Second)
 }

@@ -2,8 +2,10 @@ package main
 
 import (
 	"os"
-	routes "web-service-gin/Routes"
+	"web-service-gin/api/quotes"
+	"web-service-gin/api/users"
 	"web-service-gin/docs"
+	"web-service-gin/httputil"
 
 	_ "web-service-gin/docs"
 
@@ -26,19 +28,12 @@ func port() string {
 //	@contact.url	http://www.swagger.io/support
 //	@contact.email	support@swagger.io
 
-//	@license.name	Apache 2.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-
-func GetScheme() []string {
-	scheme, hasScheme := os.LookupEnv("SCHEME")
-
-	if hasScheme {
-		return []string{scheme}
-	} else {
-		return []string{"https"}
-	}
-}
-
+//	@license.name				Apache 2.0
+//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							cookie
+//	@name						Authorization
+//	@description				Basic password login token auth, stored in a cookie for convenience
 func InitSwag() {
 	docs.SwaggerInfo.Title = "Fuelquote API"
 	docs.SwaggerInfo.Description = "This is a fuelquote project API"
@@ -46,7 +41,7 @@ func InitSwag() {
 
 	//docs.SwaggerInfo.Host = "petstore.swagger.io"
 	docs.SwaggerInfo.BasePath = "/api/v1"
-	docs.SwaggerInfo.Schemes = GetScheme()
+	docs.SwaggerInfo.Schemes = httputil.GetURLProtocol()
 }
 
 func main() {
@@ -58,9 +53,15 @@ func main() {
 
 	v1 := router.Group(docs.SwaggerInfo.BasePath)
 	{
-		quotes := v1.Group("/quotes")
+		quotesRoute := v1.Group("/quotes")
 		{
-			quotes.GET(":id", routes.GetQuote)
+			quotesRoute.GET(":id", quotes.GetQuote)
+		}
+		usersRoute := v1.Group("/users")
+		{
+			usersRoute.GET(":id", users.ReadUser)
+			usersRoute.POST("", users.CreateUser)
+			usersRoute.POST("/login", users.LoginUser)
 		}
 	}
 

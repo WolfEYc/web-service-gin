@@ -48,9 +48,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Queried Quote",
                         "schema": {
-                            "$ref": "#/definitions/model.Quote"
+                            "$ref": "#/definitions/models.Quote"
                         }
                     },
                     "400": {
@@ -61,6 +61,107 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Quote not found",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Unknown internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Creates a new user from user info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create User",
+                "parameters": [
+                    {
+                        "description": "Create User Request Body",
+                        "name": "createuserbody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.CreateUserBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created User's ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad User Entry",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Unknown internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "description": "Gain an auth jwt cookie for a user by providing username and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Login User",
+                "parameters": [
+                    {
+                        "description": "Login User Request Body",
+                        "name": "loginuserbody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.LoginUserBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Obtained Auth",
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request Formation",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong Password",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
                         "schema": {
                             "$ref": "#/definitions/httputil.HTTPError"
                         }
@@ -89,7 +190,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Quote": {
+        "models.Quote": {
             "type": "object",
             "properties": {
                 "_id": {
@@ -121,6 +222,64 @@ const docTemplate = `{
                     "example": "63f78fc8c3a63a346225fd96"
                 }
             }
+        },
+        "users.CreateUserBody": {
+            "type": "object",
+            "properties": {
+                "address1": {
+                    "type": "string",
+                    "example": "coolsvile avvae"
+                },
+                "address2": {
+                    "type": "string",
+                    "example": "billion ave"
+                },
+                "city": {
+                    "type": "string",
+                    "example": "Houstonian"
+                },
+                "fullname": {
+                    "type": "string",
+                    "example": "zenyatta man"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "notpassword"
+                },
+                "state": {
+                    "type": "string",
+                    "example": "AZ"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "zamzang"
+                },
+                "zipcode": {
+                    "type": "integer",
+                    "example": 827392
+                }
+            }
+        },
+        "users.LoginUserBody": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "notpassword"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "zamzang"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "Basic password login token auth, stored in a cookie for convenience",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "cookie"
         }
     }
 }`

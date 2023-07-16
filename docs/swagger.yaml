@@ -8,7 +8,7 @@ definitions:
         example: status bad request
         type: string
     type: object
-  model.Quote:
+  models.Quote:
     properties:
       _id:
         example: 63f79148c3a63a346225fd99
@@ -30,6 +30,42 @@ definitions:
         type: number
       userid:
         example: 63f78fc8c3a63a346225fd96
+        type: string
+    type: object
+  users.CreateUserBody:
+    properties:
+      address1:
+        example: coolsvile avvae
+        type: string
+      address2:
+        example: billion ave
+        type: string
+      city:
+        example: Houstonian
+        type: string
+      fullname:
+        example: zenyatta man
+        type: string
+      password:
+        example: notpassword
+        type: string
+      state:
+        example: AZ
+        type: string
+      username:
+        example: zamzang
+        type: string
+      zipcode:
+        example: 827392
+        type: integer
+    type: object
+  users.LoginUserBody:
+    properties:
+      password:
+        example: notpassword
+        type: string
+      username:
+        example: zamzang
         type: string
     type: object
 info:
@@ -56,9 +92,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Queried Quote
           schema:
-            $ref: '#/definitions/model.Quote'
+            $ref: '#/definitions/models.Quote'
         "400":
           description: Invalid ID format
           schema:
@@ -74,4 +110,76 @@ paths:
       summary: Get Quote
       tags:
       - quotes
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user from user info
+      parameters:
+      - description: Create User Request Body
+        in: body
+        name: createuserbody
+        required: true
+        schema:
+          $ref: '#/definitions/users.CreateUserBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created User's ID
+          schema:
+            type: string
+        "400":
+          description: Bad User Entry
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "500":
+          description: Unknown internal server error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create User
+      tags:
+      - users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Gain an auth jwt cookie for a user by providing username and password
+      parameters:
+      - description: Login User Request Body
+        in: body
+        name: loginuserbody
+        required: true
+        schema:
+          $ref: '#/definitions/users.LoginUserBody'
+      responses:
+        "200":
+          description: Obtained Auth
+          schema:
+            type: ""
+        "400":
+          description: Bad Request Formation
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "401":
+          description: Wrong Password
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: User Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "500":
+          description: Unknown internal server error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Login User
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    description: Basic password login token auth, stored in a cookie for convenience
+    in: cookie
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
